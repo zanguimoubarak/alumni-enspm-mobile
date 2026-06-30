@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin API Documentation — Alumni ENSPM</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #0c0e13;
+    --surface: #13161e;
+    --surface2: #1a1e28;
+    --border: #252a38;
+    --accent: #f472b6;
+    --accent2: #60a5fa;
+    --accent3: #4ade80;
+    --accent4: #fb923c;
+    --accent5: #a78bfa;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --muted2: #94a3b8;
+    --GET: #4ade80;
+    --POST: #60a5fa;
+    --DELETE: #f87171;
+    --PATCH: #fb923c;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ── Sidebar ── */
+  nav {
+    width: 260px;
+    min-width: 260px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    overflow-y: auto;
+    padding: 0 0 40px;
+  }
+  nav::-webkit-scrollbar { width: 4px; }
+  nav::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .nav-header {
+    padding: 24px 20px 16px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--surface);
+    z-index: 10;
+  }
+  .nav-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 15px; letter-spacing: -0.3px; color: var(--text); line-height: 1.2; }
+  .nav-logo span { color: var(--accent); }
+  .nav-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: rgba(244,114,182,0.1); border: 1px solid rgba(244,114,182,0.25);
+    color: var(--accent); font-family: 'IBM Plex Mono', monospace; font-size: 9px;
+    padding: 2px 7px; border-radius: 10px; margin-top: 5px; letter-spacing: 0.5px;
+  }
+  .nav-version { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--muted); margin-top: 4px; }
+
+  .nav-section { padding: 20px 20px 4px; }
+  .nav-section-label { font-family: 'IBM Plex Mono', monospace; font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); margin-bottom: 8px; }
+
+  nav a {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 10px; border-radius: 6px; text-decoration: none;
+    color: var(--muted2); font-size: 13px; font-weight: 400;
+    transition: all 0.15s; margin-bottom: 1px;
+  }
+  nav a:hover { background: var(--surface2); color: var(--text); }
+  nav a .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ── Main ── */
+  main { flex: 1; max-width: calc(100vw - 260px); overflow-x: hidden; }
+
+  /* ── Hero ── */
+  .hero {
+    padding: 60px 60px 50px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(135deg, var(--bg) 0%, #140f18 100%);
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: ''; position: absolute; top: -80px; right: -80px;
+    width: 340px; height: 340px;
+    background: radial-gradient(circle, rgba(244,114,182,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(244,114,182,0.08); border: 1px solid rgba(244,114,182,0.22);
+    color: var(--accent); font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+    padding: 4px 10px; border-radius: 20px; margin-bottom: 16px;
+  }
+  .hero-tag::before { content: '⬡'; font-size: 8px; }
+
+  h1 { font-family: 'Syne', sans-serif; font-size: 38px; font-weight: 800; letter-spacing: -1.5px; line-height: 1.1; margin-bottom: 14px; }
+  h1 em { font-style: normal; color: var(--accent); }
+
+  .hero-desc { color: var(--muted2); font-size: 15px; max-width: 580px; margin-bottom: 28px; line-height: 1.7; }
+  .hero-meta { display: flex; gap: 24px; flex-wrap: wrap; }
+  .meta-item { display: flex; flex-direction: column; gap: 2px; }
+  .meta-label { font-family: 'IBM Plex Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); }
+  .meta-value { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--text); }
+
+  /* ── Content ── */
+  .content { padding: 40px 60px; }
+  .section { margin-bottom: 60px; }
+
+  .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+  .section-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+
+  h2 { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
+  h3 { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 600; margin-bottom: 12px; }
+
+  .info-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; margin-bottom: 16px; }
+  .info-box.accent { border-color: rgba(244,114,182,0.25); background: rgba(244,114,182,0.04); }
+  .info-box.blue   { border-color: rgba(96,165,250,0.25);  background: rgba(96,165,250,0.04); }
+  .info-box.green  { border-color: rgba(74,222,128,0.25);  background: rgba(74,222,128,0.04); }
+  .info-box.warn   { border-color: rgba(251,146,60,0.25);  background: rgba(251,146,60,0.04); }
+  .info-box.red    { border-color: rgba(248,113,113,0.25); background: rgba(248,113,113,0.04); }
+
+  /* ── Endpoint cards ── */
+  .endpoint { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 12px; overflow: hidden; transition: border-color 0.2s; }
+  .endpoint:hover { border-color: #353a4a; }
+
+  .endpoint-header { display: flex; align-items: center; gap: 12px; padding: 14px 18px; cursor: pointer; user-select: none; }
+  .method { font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 4px; min-width: 52px; text-align: center; letter-spacing: 0.5px; }
+  .method.GET    { background: rgba(74,222,128,0.12);  color: var(--GET);    border: 1px solid rgba(74,222,128,0.2); }
+  .method.POST   { background: rgba(96,165,250,0.12);  color: var(--POST);   border: 1px solid rgba(96,165,250,0.2); }
+  .method.DELETE { background: rgba(248,113,113,0.12); color: var(--DELETE); border: 1px solid rgba(248,113,113,0.2); }
+
+  .endpoint-path { font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--text); flex: 1; }
+  .endpoint-summary { font-size: 12px; color: var(--muted); }
+
+  .auth-badge { font-family: 'IBM Plex Mono', monospace; font-size: 9px; padding: 2px 7px; border-radius: 10px; background: rgba(244,114,182,0.1); border: 1px solid rgba(244,114,182,0.2); color: var(--accent); }
+  .auth-badge.blue { background: rgba(96,165,250,0.1); border-color: rgba(96,165,250,0.2); color: var(--accent2); }
+
+  .endpoint-body { border-top: 1px solid var(--border); padding: 18px 18px 20px; display: none; }
+  .endpoint.open .endpoint-body { display: block; }
+  .endpoint.open .endpoint-header { background: var(--surface2); }
+
+  /* ── Tables ── */
+  .params-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+  .params-table th { font-family: 'IBM Plex Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); padding: 6px 10px; text-align: left; border-bottom: 1px solid var(--border); font-weight: 500; }
+  .params-table td { padding: 8px 10px; border-bottom: 1px solid rgba(37,42,56,0.5); vertical-align: top; }
+  .params-table tr:last-child td { border-bottom: none; }
+
+  .param-name { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--accent2); }
+  .param-type { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted2); }
+
+  .required-badge { font-size: 9px; padding: 1px 5px; border-radius: 3px; background: rgba(248,113,113,0.12); color: #f87171; border: 1px solid rgba(248,113,113,0.2); font-family: 'IBM Plex Mono', monospace; margin-left: 4px; vertical-align: middle; }
+  .optional-badge { font-size: 9px; padding: 1px 5px; border-radius: 3px; background: rgba(100,116,139,0.12); color: var(--muted2); border: 1px solid rgba(100,116,139,0.2); font-family: 'IBM Plex Mono', monospace; margin-left: 4px; vertical-align: middle; }
+  .admin-only-badge { font-size: 9px; padding: 1px 5px; border-radius: 3px; background: rgba(244,114,182,0.12); color: var(--accent); border: 1px solid rgba(244,114,182,0.2); font-family: 'IBM Plex Mono', monospace; margin-left: 4px; vertical-align: middle; }
+
+  /* ── Code ── */
+  pre { background: #090b10; border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px; overflow-x: auto; font-family: 'IBM Plex Mono', monospace; font-size: 12px; line-height: 1.7; margin: 10px 0; }
+  code { font-family: 'IBM Plex Mono', monospace; font-size: 12px; }
+  .json-key   { color: #60a5fa; }
+  .json-str   { color: #86efac; }
+  .json-num   { color: #fb923c; }
+  .json-bool  { color: #f472b6; }
+  .json-null  { color: var(--muted); }
+  .json-comment { color: var(--muted); font-style: italic; }
+
+  /* ── Status codes ── */
+  .response-title { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+  .status-code { font-family: 'IBM Plex Mono', monospace; font-size: 10px; padding: 2px 7px; border-radius: 4px; font-weight: 600; }
+  .s200 { background: rgba(74,222,128,0.1);  color: var(--GET);    border: 1px solid rgba(74,222,128,0.2); }
+  .s201 { background: rgba(96,165,250,0.1);  color: var(--POST);   border: 1px solid rgba(96,165,250,0.2); }
+  .s403 { background: rgba(248,113,113,0.1); color: var(--DELETE); border: 1px solid rgba(248,113,113,0.2); }
+  .s422 { background: rgba(248,113,113,0.1); color: var(--DELETE); border: 1px solid rgba(248,113,113,0.2); }
+
+  .sub-divider { height: 1px; background: var(--border); margin: 16px 0; }
+  p.desc { color: var(--muted2); font-size: 13px; margin-bottom: 12px; line-height: 1.7; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+
+  /* ── Fichier colonnes tableau ── */
+  .col-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .col-table th { font-family: 'IBM Plex Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); padding: 5px 10px; text-align: left; border-bottom: 1px solid var(--border); }
+  .col-table td { padding: 6px 10px; border-bottom: 1px solid rgba(37,42,56,0.4); font-family: 'IBM Plex Mono', monospace; font-size: 11px; }
+  .col-table tr:last-child td { border-bottom: none; }
+  .col-req  { color: #f87171; }
+  .col-opt  { color: var(--muted2); }
+  .col-name { color: var(--accent2); }
+
+  .chevron { margin-left: auto; color: var(--muted); font-size: 10px; transition: transform 0.2s; }
+  .endpoint.open .chevron { transform: rotate(180deg); }
+  [id] { scroll-margin-top: 20px; }
+
+  /* ── Toggle pill ── */
+  .toggle-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(251,146,60,0.1); border: 1px solid rgba(251,146,60,0.25);
+    color: #fb923c; font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+    padding: 2px 9px; border-radius: 12px;
+  }
+
+  @media (max-width: 900px) {
+    nav { display: none; }
+    main { max-width: 100vw; }
+    .hero, .content { padding: 30px 24px; }
+    h1 { font-size: 28px; }
+    .grid-2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ─── SIDEBAR ─── -->
+<nav>
+  <div class="nav-header">
+    <div class="nav-logo">Alumni <span>ENSPM</span></div>
+    <div class="nav-badge">⬡ ADMIN DASHBOARD</div>
+    <div class="nav-version">REST API · v1.0 · Laravel 12</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Démarrage</div>
+    <a href="#intro">    <span class="dot" style="background:#f472b6"></span>Introduction Admin</a>
+    <a href="#prefix">   <span class="dot" style="background:#60a5fa"></span>Préfixe & Accès</a>
+    <a href="#responses"><span class="dot" style="background:#a78bfa"></span>Format des réponses</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Modules Admin</div>
+    <a href="#users">         <span class="dot" style="background:#f472b6"></span>Gestion des utilisateurs</a>
+    <a href="#admin-internships"><span class="dot" style="background:#4ade80"></span>Stages (admin)</a>
+    <a href="#admin-announcements"><span class="dot" style="background:#fb923c"></span>Annonces (admin)</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Modules Plateforme</div>
+    <a href="#announcements"><span class="dot" style="background:#fb923c"></span>Annonces (lecture)</a>
+    <a href="#networking">   <span class="dot" style="background:#60a5fa"></span>Networking / Membres</a>
+  </div>
+</nav>
+
+<!-- ─── MAIN ─── -->
+<main>
+
+  <!-- ── HERO ── -->
+  <div class="hero">
+    <div class="hero-tag">Dashboard Admin</div>
+    <h1>Alumni <em>ENSPM</em><br>Admin API</h1>
+    <p class="hero-desc">
+      Documentation complète des routes d'administration de la plateforme alumni ENSPM.
+      Couvre la gestion des utilisateurs, des stages, des annonces, ainsi que les modules partagés Networking et Annonces.
+    </p>
+    <div class="hero-meta">
+      <div class="meta-item">
+        <span class="meta-label">Base URL</span>
+        <span class="meta-value">http://your-domain.com/api</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Préfixe admin</span>
+        <span class="meta-value">/api/admin/*</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Auth requise</span>
+        <span class="meta-value">Bearer Token + role:admin</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Framework</span>
+        <span class="meta-value">Laravel 12 + Sanctum</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ── INTRODUCTION ── -->
+    <div class="section" id="intro">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(244,114,182,0.1)">⬡</div>
+        <h2>Introduction — Espace Admin</h2>
+      </div>
+
+      <div class="info-box accent">
+        <h3>Vue d'ensemble</h3>
+        <p class="desc">
+          Ce document couvre exclusivement les nouvelles routes ajoutées dans cette version du projet.
+          Il se divise en deux parties :
+        </p>
+        <div class="grid-2" style="margin-bottom:0">
+          <div style="background:rgba(244,114,182,0.06);border:1px solid rgba(244,114,182,0.15);border-radius:8px;padding:14px">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--accent);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">Routes Admin (/api/admin/*)</div>
+            <p class="desc" style="margin:0">Réservées aux utilisateurs avec <code>role = admin</code>. Accès refusé (403) pour tout autre rôle. Gèrent les utilisateurs, les stages et les annonces de la plateforme.</p>
+          </div>
+          <div style="background:rgba(96,165,250,0.06);border:1px solid rgba(96,165,250,0.15);border-radius:8px;padding:14px">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--accent2);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">Nouvelles routes Plateforme</div>
+            <p class="desc" style="margin:0">Accessibles à tous les utilisateurs authentifiés. Incluent la lecture des annonces actives (<code>/announcements</code>) et la découverte des membres (<code>/networking/members</code>).</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PRÉFIXE ── -->
+    <div class="section" id="prefix">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(96,165,250,0.1)">🔐</div>
+        <h2>Préfixe & Contrôle d'accès</h2>
+      </div>
+
+      <p class="desc">Toutes les routes admin sont protégées par deux couches de sécurité appliquées dans <code>routes/api.php</code>.</p>
+
+      <div class="info-box blue">
+        <h3>Double middleware sur toutes les routes <code>/api/admin/*</code></h3>
+        <pre><code>Route::middleware(<span class="json-str">['auth:sanctum', 'role:admin']</span>)->prefix(<span class="json-str">'admin'</span>)->group(...);</code></pre>
+        <p class="desc" style="margin-top:10px;margin-bottom:0">
+          1. <strong>auth:sanctum</strong> — vérifie la présence du Bearer Token<br>
+          2. <strong>role:admin</strong> — vérifie que l'utilisateur a le rôle <code>admin</code>
+        </p>
+      </div>
+
+      <div class="info-box warn">
+        <h3>Header à inclure dans chaque requête</h3>
+        <pre><code>Authorization: Bearer <span class="json-str">{token_admin}</span>
+Content-Type: application/json
+Accept: application/json</code></pre>
+      </div>
+
+      <div class="grid-2">
+        <div class="info-box red">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#f87171;margin-bottom:6px;">401 — Non authentifié</div>
+          <p class="desc" style="margin:0">Token manquant ou expiré. L'utilisateur doit se reconnecter via <code>POST /api/login</code>.</p>
+        </div>
+        <div class="info-box red">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#f87171;margin-bottom:6px;">403 — Accès refusé</div>
+          <p class="desc" style="margin:0">Token valide mais l'utilisateur n'a pas le rôle <code>admin</code>. Ne jamais exposer ces routes au frontend public.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RÉPONSES ── -->
+    <div class="section" id="responses">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(167,139,250,0.1)">📦</div>
+        <h2>Format des réponses</h2>
+      </div>
+      <p class="desc">Identique au reste de l'API : structure JSON unifiée avec les champs <code>type</code>, <code>status</code>, <code>message</code> et <code>data</code>.</p>
+
+      <div class="grid-2">
+        <div>
+          <div class="response-title"><span class="status-code s200">200/201</span> Succès</div>
+          <pre><code>{
+  <span class="json-key">"type"</span>:    <span class="json-str">"success"</span>,
+  <span class="json-key">"status"</span>:  <span class="json-num">200</span>,
+  <span class="json-key">"message"</span>: <span class="json-str">"Opération réussie"</span>,
+  <span class="json-key">"data"</span>:    { <span class="json-comment">/* données retournées */</span> }
+}</code></pre>
+        </div>
+        <div>
+          <div class="response-title"><span class="status-code s422">422</span> Erreur de validation</div>
+          <pre><code>{
+  <span class="json-key">"type"</span>:    <span class="json-str">"validation_error"</span>,
+  <span class="json-key">"status"</span>:  <span class="json-num">422</span>,
+  <span class="json-key">"message"</span>: <span class="json-str">"Validation Error"</span>,
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"email"</span>: <span class="json-str">"Déjà utilisé"</span>
+  }
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="info-box" style="margin-top:4px">
+        <p class="desc" style="margin:0">Pour l'import en masse (<code>bulkStore</code>, <code>import</code>), le champ <code>data</code> contient deux compteurs :
+        <code>created</code> (nombre de lignes importées) et <code>skipped</code> (tableau des lignes ignorées avec la raison).</p>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
+         MODULE UTILISATEURS
+    ════════════════════════════════════════════════════════ -->
+    <div class="section" id="users">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(244,114,182,0.1)">👥</div>
+        <h2>Gestion des utilisateurs</h2>
+      </div>
+
+      <p class="desc">Préfixe : <code>/api/admin/users</code>. Permet de créer des comptes, d'importer en masse depuis un fichier Excel/CSV, et de supprimer des utilisateurs. À la création, un mot de passe est généré automatiquement et envoyé par email.</p>
+
+      <!-- LIST -->
+      <div class="endpoint open">
+        <div class="endpoint-header" onclick="toggle(this)">
+          <span class="method GET">GET</span>
+          <span class="endpoint-path">/api/admin/users</span>
+          <span class="endpoint-summary">Lister tous les utilisateurs</span>
+          <span class="auth-badge">⬡ Admin</span>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="endpoint-body">
+          <p class="desc">Retourne tous les utilisateurs paginés (30 par page), sans filtres. Inclut tous les rôles.</p>
+          <div class="response-title"><span class="status-code s200">200</span> Réponse</div>
+          <pre><code>{
+  <span class="json-key">"type"</span>: <span class="json-str">"success"</span>,
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"data"</span>: [
+      {
+        <span class="json-key">"id"</span>: <span class="json-num">1</span>,
+        <span class="json-key">"name"</span>: <span class="json-str">"Jean Dupont"</span>,
+        <span class="json-key">"email"</span>: <span class="json-str">"jean@enspm.cm"</span>,
+        <span class="json-key">"phone"</span>: <span class="json-str">"690000000"</span>,
+        <span class="json-key">"role"</span>: <span class="json-str">"user"</span>,
+        <span class="json-key">"domain"</span>: <span class="json-str">"Génie Civil"</span>,
+        <span class="json-key">"graduation_year"</span>: <span class="json-num">2022</span>,
+        <span class="json-key">"is_worker"</span>: <span class="json-bool">true</span>,
+        <span class="json-key">"status"</span>: <span class="json-bool">true</span>,
+        <span class="json-key">"created_at"</span>: <span class="json-str">"2026-01-15T10:00:00.000000Z"</span>
+      }
+    ],
+    <span class="json-key">"next_page_url"</span>: <span class="json-str">"http://your-domain.com/api/admin/users?page=2"</span>,
+    <span class="json-key">"prev_page_url"</span>: <span class="json-null">null</span>
+  }
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- CREATE -->
+      <div class="endpoint">
+        <div class="endpoint-header" onclick="toggle(this)">
+          <span class="method POST">POST</span>
+          <span class="endpoint-path">/api/admin/users</span>
+          <span class="endpoint-summary">Créer un compte utilisateur</span>
+          <span class="auth-badge">⬡ Admin</span>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="endpoint-body">
+          <p class="desc">Crée un nouveau compte, génère automatiquement un mot de passe aléatoire (9 caractères) et envoie les identifiants par email à l'utilisateur.</p>
+          <h3>Corps de la requête (JSON)</h3>
+          <table class="params-table">
+            <thead><tr><th>Paramètre</th><th>Type</th><th>Contrainte</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><span class="param-name">name</span><span class="required-badge">requis</span></td>
+                <td><span class="param-type">string</span></td>
+                <td>–</td>
+                <td>Nom complet</td>
+              </tr>
+              <tr>
+                <td><span class="param-name">email</span><span class="required-badge">requis</span></td>
+                <td><span class="param-type">string (email)</span></td>
+                <td>unique</td>
+                <td>Adresse email (doit être unique)</td>
+              </tr>
+              <tr>
+                <td><span class="param-name">phone</span><span class="required-badge">requis</span></td>
+                <td><span class="param-type">string</span></td>
+                <td>unique</td>
+                <td>Numéro de téléphone (doit être unique)</td>
+              </tr>
+              <tr>
+                <td><span class="param-name">role</span><span class="required-badge">requis</span></td>
+                <td><span class="param-type">string</span></td>
+                <td>–</td>
+                <td>Rôle : <code>user</code> ou <code>admin</code></td>
+              </tr>
+              <tr>
+                <td><span class="param-name">domain</span><span class="optional-badge">optionnel</span></td>
+                <td><span class="param-type">string</span></td>
+                <td>–</td>
+                <td>Domaine de spécialisation (ex : Génie Civil)</td>
+              </tr>
+              <tr>
+                <td><span class="param-name">graduation_year</span><span class="optional-badge">optionnel</span></td>
+                <td><span class="param-type">integer</span></td>
+                <td>4 chiffres, ≥ 1900</td>
+                <td>Année de diplôme</td>
+              </tr>
+              <tr>
+                <td><span class="param-name">is_worker</span><span class="optional-badge">optionnel</span></td>
+                <td><span class="param-type">boolean</span></td>
+                <td>–</td>
+                <td>L'utilisateur est-il en activité professionnelle ?</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="sub-divider"></div>
+          <div class="response-title"><span class="status-code s200">200</span> Réponse succès</div>
+          <pre><code>{
+  <span class="json-key">"type"</span>: <span class="json-str">"success"</span>,
+  <span class="json-key">"message"</span>: <span class="json-str">"Account created"</span>,
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"id"</span>: <span class="json-num">42</span>,
+    <span class="json-key">"name"</span>: <span class="json-str">"Marie Curie"</span>,
+    <span class="json-key">"email"</span>: <span class="json-str">"marie@enspm.cm"</span>,
+    <span class="json-key">"role"</span>: <span class="json-str">"user"</span>
+    <span class="json-comment">// mot de passe NON retourné — envoyé par email uniquement</span>
+  }
+}</code></pre>
+          <div class="info-box warn" style="margin-top:10px">
+            <p class="desc" style="margin:0">⚠️ Le mot de passe généré est envoyé <strong>uniquement par email</strong> à l'utilisateur. Il n'est jamais retourné dans la réponse API.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- BULK IMPORT -->
+      <div class="endpoint">
+        <div class="endpoint-header" onclick="toggle(this)">
+          <span class="method POST">POST</span>
+          <span class="endpoint-path">/api/admin/users/bulk-import</span>
+          <span class="endpoint-summary">Import en masse depuis Excel / CSV</span>
+          <span class="auth-badge">⬡ Admin</span>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="endpoint-body">
+          <p class="desc">Importe plusieurs utilisateurs depuis un fichier tabulaire. Pour chaque ligne valide : un compte est créé et un email avec les identifiants est envoyé. Les lignes invalides (email/téléphone déjà existant, données manquantes) sont ignorées et listées dans <code>skipped</code>.</p>
+
+          <h3>Requête (multipart/form-data)</h3>
+          <table class="params-table">
+            <thead><tr><th>Paramètre</th><th>Type</th><th>Contrainte</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><span class="param-name">file</span><span class="required-badge">requis</span></td>
+                <td><span class="param-type">file</span></td>
+                <td>Formats acceptés : <code>xlsx</code>, <code>xls</code>, <code>csv</code>, <code>ods</code>, <code>txt</code> — max 5 MB</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="sub-divider"></div>
+          <h3>Structure du fichier (colonnes dans l'ordre)</h3>
+          <div style="background:#090b10;border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:12px">
+            <table class="col-table">
+              <thead>
+                <tr>
+                  <th>Colonne</th>
+                  <th>Nom attendu</th>
+                  <th>Type</th>
+                  <th>Requis</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="col-name">A</td><td>name</td><td>texte</td><td class="col-req">✓</td><td>Nom complet</td></tr>
+                <tr><td class="col-name">B</td><td>email</td><td>email</td><td class="col-req">✓</td><td>Doit être unique</td></tr>
+                <tr><td class="col-name">C</td><td>phone</td><td>texte</td><td class="col-req">✓</td><td>Doit être unique</td></tr>
+                <tr><td class="col-name">D</td><td>role</td><td>texte</td><td class="col-req">✓</td><td><code>user</code> ou <code>admin</code></td></tr>
+                <tr><td class="col-name">E</td><td>domain</td><td>texte</td><td class="col-opt">–</td><td>Domaine de formation</td></tr>
+                <tr><td class="col-name">F</td><td>graduation_year</td><td>entier (4 chiffres)</td><td class="col-opt">–</td><td>Ex : 2022</td></tr>
+                <tr><td class="col-name">G</td><td>is_worker</td><td>booléen</td><td class="col-opt">–</td><td>Valeurs acceptées : <code>1</code>, <code>true</code>, <code>yes</code>, <code>oui</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="info-box" style="margin-bottom:12px">
+            <p class="desc" style="margin:0">📎 La <strong>première ligne est considérée comme l'en-tête</strong> et est ignorée. Les lignes complètement vides sont ignorées silencieusement.</p>
+          </div>
+
+          <div class="sub-divider"></div>
+          <div class="response-title"><span class="status-code s200">200</span> Réponse</div>
+          <pre><code>{
+  <span class="json-key">"type"</span>: <span class="json-str">"success"</span>,
+  <span class="json-key">"message"</span>: <span class="json-str">"12 account(s) created, 2 row(s) skipped."</span>,
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"created"</span>: <span class="json-num">12</span>,
+    <span class="json-key">"skipped"</span>: [
+      {
+        <span class="json-key">"row"</span>: <span class="json-num">5</span>,
+        <span class="json-key">"data"</span>: { <span class="json-key">"name"</span>: <span class="json-str">"Alice"</span>, <span class="json-key">"email"</span>: <span class="json-str">"alice@enspm.cm"</span>, <span class="json-key">"phone"</span>: <span class="json-str">"699000000"</span> },
+        <span class="json-key">"reason"</span>: [<span class="json-str">"The email has already been taken."</span>]
+      },
+      {
+        <span class="json-key">"row"</span>: <span class="json-num">9</span>,
+        <span class="json-key">"data"</span>: { <span class="json-key">"name"</span>: <span class="json-str">"Bob"</span>, <span class="json-key">"email"</span>: <span class="json-str">""</span>, <span class="json-key">"phone"</span>: <span class="json-str">""</span> },
+        <span class="json-key">"reason"</span>: [<span class="json-str">"The email field is required."</span>, <span class="json-str">"The phone field is required."</span>]
+      }
+    ]
+  }
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- DELETE -->
+      <div class="endpoint">
+        <div class="endpoint-header" onclick="toggle(this)">
+          <span class="method DELETE">DELETE</span>
+          <span class="endpoint-path">/api/admin/users/{id}</span>
+          <span class="endpoint-summary">Supprimer un compte utilisateur</span>
+          <span class="auth-badge">⬡ Admin</span>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="endpoint-body">
+          <p class="desc">Supprime définitivement le compte. L'<code>id</code> est passé dans l'URL. Aucun corps de requête requis.</p>
+          <h3>Paramètre d'URL</h3>
+          <table class="params-table">
+            <thead><tr><th>Paramètre</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><span class="param-name">id</span><span class="required-badge">requis</span></td>
+                <td><span class="param-type">integer</span></td>
+                <td>Identifiant de l'utilisateur à supprimer</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="sub-divider"></div>
+          <div class="response-title"><span class="status-code s200">200</span> Réponse</div>
+          <pre><code>{ <span class="json-key">"type"</span>: <span class="json-str">"success"</span>, <span class="json-key">"message"</span>: <span class="json-str">"Deleted account"</span>, <span class="json-key">"data"</span>: <span class="json-num">1</span> }</code></pre>
+          <div class="info-box red" style="margin-top:10px">
+            <p class="desc" style="margin:0">🗑️ La suppression est <strong>définitive</strong>. Il n'existe pas de corbeille ou de désactivation — utilisez cette route avec précaution.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
+         MODULE ADMIN INTERNSHIPS
+    ════════════════════════════════════════════════════════ -->
+    <div class="section" id="admin-internships">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(74,222,128,0.1)">🎓</div>
+        <h2>Stages — Vue Admin</h2>
+      </div>
+
+      <p class="desc">Préfixe : <code>/api/admin/internships</code>. Contrairement à la route publique, l'admin voit <strong>toutes les offres</strong> (actives, suspendues, brouillons) et peut les suspendre/réactiver ou en importer en masse.</p>
+
+      <!-- LIST (admin) -->
+      <div class="endpoint open">
+        <div class="endpoint-header" onclick="toggle(this)">
+          <span class="method GET">GET</span>
+          <span class="endpoint-path">/api/admin/internships</span>
+          <span class="endpoint-summary">Lister toutes les offres de stage</span>
+          <span class="auth-badge">⬡ Admin</span>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="endpoint-body">
+          <p class="desc">Retourne toutes les offres (tous statuts confondus), paginées par 30. Filtres disponibles en query params.</p>
+          <table class="params-table">
+            <thead><tr><th>Query param</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><span class="param-name">status</span><span class="optional-badge">optionnel</span></td>
+                <td><span class="param-type">string</span></td>
+                <td>Filtrer par statut : <code>active</code>, <code>suspended</code>, <code>draft</code></td>
+              </tr>
+              <tr>
+                <td><span class="param-name">title</span><span class="optional-badge">optionnel</span></td>
+                <td><span class="param-type">string</span></td>
+                <td>Recherche par titre (LIKE)</td>
+              </tr>
+              <tr>
+                <td><span class="param-name">location</span><span class="optional-badge">optionnel</span></td>
+                <td><span class="param-type">string</span></td>
+                <td>Filtrer par lieu (LIKE)</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="sub-divider"></div>
+          <div class="response-title"><span class="status-code s200">200</span> Réponse</div>
+          <pre><code>{
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"data"</span>: [
+      {
+        <span class="json-key">"id"</span>: <span class="json-num">1</span>,
+        <span class="json-key">"title"</span>: <span class="json-str">"Stage génie civil"</span>,
+        <span class="json-key">"location"</span>: <span class="json-str">"Maroua"</span>,
+        <span class="json-key">"organization"</span>: <span class="json-str">"STE SA"</span>,
+        <span class="json-key">"status"</span>: <span class="json-str">"active"</span>,
+        <span class="json-key">"suspended_by"</span>: <span class="json-null">null</span>,
+        <span class="json-key">"user"</span>: { <span class="json-comment">/* auteur de l'offre */</span> },
+        <span class="json-key">"created_at"</span>: <span class="json-str">"2026-03-10T08:00:00.000000Z"</span>
+      }
+    ],
+    <span class="json-key">"next_page_url"</span>: <span class="json-null">null</span>
+  }
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- SUSPEND TOGGLE -->
+      <div class="endpoint">
+        <div class="endpoint-header" onclick="toggle(this)">
+          <span class="method GET">GET</span>
+          <span class="endpoint-path">/api/admin/internships/{id}/suspend</span>
+          <span class="endpoint-summary">Suspendre / Réactiver une offre</span>
+          <span class="auth-badge">⬡ Admin</span>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="endpoint-body">
+          <p class="desc">Route à comportement <strong>toggle</strong> : si l'offre est <code>active</code> → elle passe à <code>suspended</code> ; si elle est <code>suspended</code> → elle repasse à <code>active</code>. L'ID de l'admin qui suspend est enregistré dans <code>suspended_by</code> (remis à null lors de la réactivation).</p>
+          <h3>Paramètre d'URL</h3>
+          <table class="params-table">
+            <thead><tr><th>Paramètre</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><span class="param-name">id</span><span class="required-badge">requis</span></td>
+                <td><span class="param-type">integer</span></td>
+                <td>Identifiant de l'offre de stage</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="sub-divider"></div>
+
+          <div class="grid-2">
+            <div>
+              <div class="response-title"><span class="status-code s200">200</span> Suspension (active → suspended)</div>
+              <pre><code>{ <span class="json-key">"message"</span>: <span class="json-str">"Offre de stage suspendue avec succès."</span> }</code></pre>
+            </div>
+            <div>
+              <div class="response-title"><span class="status-code s200">200</span> Réactivation (suspended → active)</div>
+              <pre><code>{ <span class="json-key">"message"</span>: <span class="json-str">"Offre de stage réactivée avec succès."</span> }</code></pre>
+            </div>
+          </div>
+
+          <div class="info-box" style="margin-top:4px">
+            <p class="desc" style="margin:0">💡 Appellez la même route une seconde fois pour inverser l'état. Pas besoin d'une route séparée pour réactiver.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- BULK IMPORT STAGES -->
+      <div class="endpoint">
+        <div class="endpoint-header" onclick="toggle(this)">
+          <span class="method POST">POST</span>
+          <span class="endpoint-path">/api/admin/internships/import</span>
+          <span class="endpoint-summary">Importer des stages en masse</span>
+          <span class="auth-badge">⬡ Admin</span>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="endpoint-body">
+          <p class="desc">Importe plusieurs offres de stage depuis un fichier Excel ou CSV. Les offres importées sont directement publiées (<code>status = active</code>). L'admin connecté est enregistré comme auteur (<code>user_id</code>) de toutes les offres importées.</p>
+
+          <h3>Requête (multipart/form-data)</h3>
+          <table class="params-table">
+            <thead><tr><th>Paramètre</th><th>Type</th><th>Contrainte</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><span class="param-name">file</span><span class="required-badge">requis</span></td>
+                <td><span class="param-type">file</span></td>
+                <td>Formats acceptés : <code>xlsx</code>, <code>xls</code>, <code>csv</code>, <code>txt</code></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="sub-divider"></div>
+          <h3>Structure du fichier — colonnes attendues</h3>
+          <p class="desc">La <strong>première ligne doit être l'en-tête</strong> avec exactement les noms ci-dessous. Les colonnes <code>title</code>, <code>location</code> et <code>organization</code> sont obligatoires.</p>
+
+          <div style="background:#090b10;border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:12px">
+            <table class="col-table">
+              <thead>
+                <tr><th>Nom de colonne</th><th>Type</th><th>Requis</th><th>Contrainte</th></tr>
+              </thead>
+              <tbody>
+                <tr><td class="col-name">title</td><td>texte</td><td class="col-req">✓</td><td>max 255 caractères</td></tr>
+                <tr><td class="col-name">location</td><td>texte</td><td class="col-req">✓</td><td>max 255 caractères</td></tr>
+                <tr><td class="col-name">organization</td><td>texte</td><td class="col-req">✓</td><td>max 255 caractères</td></tr>
+                <tr><td class="col-name">description</td><td>texte</td><td class="col-opt">–</td><td>max 5 000 caractères</td></tr>
+                <tr><td class="col-name">type</td><td>texte</td><td class="col-opt">–</td><td>max 100 caractères (ex : présentiel)</td></tr>
+                <tr><td class="col-name">link</td><td>URL</td><td class="col-opt">–</td><td>max 500 caractères, doit être une URL valide</td></tr>
+                <tr><td class="col-name">deadline</td><td>date</td><td class="col-opt">–</td><td>Format YYYY-MM-DD</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="info-box warn">
+            <p class="desc" style="margin:0">⚠️ Si les colonnes obligatoires (<code>title</code>, <code>location</code>, <code>organization</code>) sont absentes de l'en-tête, l'API retourne immédiatement une erreur listant les colonnes manquantes.</p>
+          </div>
+
+          <div class="sub-divider"></div>
+          <div class="response-title"><span class="status-code s200">200</span> Réponse</div>
+          <pre><code>{
+  <span class="json-key">"message"</span>: <span class="json-str">"8 stage(s) importé(s) avec succès."</span>,
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"imported"</span>: <span class="json-num">8</span>,
+    <span class="json-key">"errors"</span>: [
+      <span class="json-str">"Ligne 4 ignorée : The link must be a valid URL."</span>,
+      <span class="json-str">"Ligne 7 ignorée : The title field is required."</span>
+    ]
+  }
+}</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
+         MODULE ADMIN ANNOUNCEMENTS
+    ════════════════════════════════════════════════════════ -->
+    <div class="section" id="admin-announcements">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(251,146,60,0.1)">📢</div>
+        <h2>Annonces — Vue Admin</h2>
+      </div>
+
+      <p class="desc">Préfixe : <code>/api/admin/announcements</code>. Permet de créer et gérer les annonces officielles de la plateforme (actualités, événements, communiqués). Les annonces peuvent avoir une image, une date de début et une date de fin de visibilité.</p>
+
+      <!-- LIST ADMIN -->
+      <div class="endpoint open">
+        <div class="endpoint-header" onclick="toggle(this)">
+          <span class="method GET">GET</span>
+          <span class="endpoint-path">/api/admin/announcements</span>
+          <span class="endpoint-summary">Lister toutes les annonces</span>
+          <span class="auth-badge">⬡ Admin</span>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="endpoint-body">
+          <p class="desc">Retourne toutes les annonces (tous statuts), paginées par 30. Inclut l'auteur (<code>user</code>). Triées de la plus récente à la plus ancienne.</p>
+          <table class="params-table">
+            <thead><tr><th>Query param</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><span class="param-name">status</span><span class="optional-badge">optionnel</span></td>
+                <td><span class="param-type">string</span></td>
+                <td>Filtrer par statut : <code>active</code> ou <code>suspended</code></td>
+              </tr>
+              <tr>
+                <td><span class="param-name">title</span><span class="optional-badge">optionnel</span></td>
+                <td><span class="param-type">string</span></td>
+                <td>Recherche par titre (LIKE)</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="sub-divider"></div>
+          <div class="response-title"><span class="status-code s200">200</span> Réponse</div>
+          <pre><code>{
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"data"</span>: [
+      {
+        <span class="json-key">"id"</span>: <span class="json-num">1</span>,
+        <span class="json-key">"title"</span>: <span class="json-str">"Journée portes ouvertes ENSPM 2026"</span>,
+        <span class="json-key">"content"</span>: <span class="json-str">"Venez nombreux..."</span>,
+        <span class="json-key">"image"</span>: <span class="json-str">"announcements/portes-ouvertes_abc123.jpg"</span>,
+        <span class="json-key">"status"</span>: <span class="json-str">"active"</span>,
+        <span class="json-key">"start_date"</span>: <span class="json-str">"2026-06-01"</span>,
+        <span class="json-key">"end_date"</span>: <span class="json-str">"2026-06-15"</span>,
+        <span class="json-key">"suspended_by"</span>: <span class="json-null">null</span>,
+        <span class="json-key">"user"</span>: { <span class="json-comment">/* admin auteur */</span> },
+        <span class="json-key">"created_at"</span>: <span class="json-str">"2026-05-10T09:00:00.000000Z"</span>
+      }
+    ],
+    <span class="json-key">"next_page_url"</span>: <span class="json-null">null</span>
+  }
+}</code></pre>
+          <div class="info-box" style="margin-top:10px">
+            <p class="desc" style="margin:0">💡 L'URL complète de l'image se construit ainsi : <code>BASE_URL/storage/{image}</code><br>
+            Ex : <code>http://your-domain.com/storage/announcements/portes-ouvertes_abc123.jpg</code></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- CREATE -->
+      <div class="endpoint">
+        <div class="endpoint-header" onclick="toggle(this)">
+          <span class="method POST">POST</span>
+          <span class="endpoint-path">/api/admin/announcements</span>
+          <span class="endpoint-summary">Créer une annonce</span>
+          <span class="auth-badge">⬡ Admin</span>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="endpoint-body">
+          <p class="desc">Crée une nouvelle annonce, publiée immédiatement (<code>status = active</code>). Envoyez la requête en <code>multipart/form-data</code> si vous incluez une image.</p>
+
+          <h3>Corps de la requête (multipart/form-data ou JSON si sans image)</h3>
+          <table class="params-table">
+            <thead><tr><th>Paramètre</th><th>Type</th><th>Contrainte</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><span class="param-name">title</span><span class="required-badge">requis</span></td>
+                <td><span class="param-type">string</span></td>
+                <td>max:255</td>
+                <td>Titre de l'annonce</td>
+              </tr>
+              <tr>
+                <td><span class="param-name">content</span><span class="required-badge">requis</span></td>
+                <td><span class="param-type">string</span></td>
+                <td>–</td>
+                <td>Corps de l'annonce (texte riche accepté)</td>
+              </tr>
+              <tr>
+                <td><span class="param-name">image</span><span class="optional-badge">optionnel</span></td>
+                <td><span class="param-type">file (image)</span></td>
+                <td>jpg, jpeg, png, webp</td>
+                <td>Image illustrative de l'annonce</td>
+              </tr>
+              <tr>
+                <td><span class="param-name">start_date</span><span class="optional-badge">optionnel</span></td>
+                <td><span class="param-type">date</span></td>
+                <td>format YYYY-MM-DD</td>
+                <td>Début de la période de visibilité</td>
+              </tr>
+              <tr>
+                <td><span class="param-name">end_date</span><span class="optional-badge">optionnel</span></td>
+                <td><span class="param-type">date</span></td>
+                <td>≥ start_date</td>
+                <td>Fin de la période de visibilité</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="sub-divider"></div>
+          <div class="response-title"><span class="status-code s201">201</span> Réponse succès</div>
+          <pre><code>{
+  <span class="json-key">"type"</span>: <span class="json-str">"success"</span>,
+  <span class="json-key">"message"</span>: <span class="json-str">"Annonce créée avec succès."</span>,
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"announcement"</span>: {
+      <span class="json-key">"id"</span>: <span class="json-num">3</span>,
+      <span class="json-key">"title"</span>: <span class="json-str">"Journée portes ouvertes ENSPM 2026"</span>,
+      <span class="json-key">"content"</span>: <span class="json-str">"Venez nombreux découvrir..."</span>,
+      <span class="json-key">"image"</span>: <span class="json-str">"announcements/portes-ouvertes_6845abc.jpg"</span>,
+      <span class="json-key">"status"</span>: <span class="json-str">"active"</span>,
+      <span class="json-key">"start_date"</span>: <span class="json-str">"2026-06-01"</span>,
+      <span class="json-key">"end_date"</span>: <span class="json-str">"2026-06-15"</span>,
+      <span class="json-key">"user"</span>: { <span class="json-comment">/* admin auteur */</span> },
+      <span class="json-key">"created_at"</span>: <span class="json-str">"2026-05-19T10:00:00.000000Z"</span>
+    }
+  }
+}</code></pre>
+        </div>
+      </div>
+
+      <!-- SUSPEND TOGGLE ANNOUNCEMENT -->
+      <div class="endpoint">
+        <div class="endpoint-header" onclick="toggle(this)">
+          <span class="method GET">GET</span>
+          <span class="endpoint-path">/api/admin/announcements/{id}/suspend</span>
+          <span class="endpoint-summary">Suspendre / Réactiver une annonce</span>
+          <span class="auth-badge">⬡ Admin</span>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="endpoint-body">
+          <p class="desc">Même logique toggle que pour les stages : <code>active → suspended</code> ou <code>suspended → active</code> selon l'état courant.</p>
+          <h3>Paramètre d'URL</h3>
+          <table class="params-table">
+            <thead><tr><th>Paramètre</th><th>Type</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><span class="param-name">id</span><span class="required-badge">requis</span></td>
+                <td><span class="param-type">integer</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="sub-divider"></div>
+          <div class="grid-2">
+            <div>
+              <div class="response-title"><span class="status-code s200">200</span> Suspension</div>
+              <pre><code>{ <span class="json-key">"message"</span>: <span class="json-str">"Annonce suspendue avec succès."</span> }</code></pre>
+            </div>
+            <div>
+              <div class="response-title"><span class="status-code s200">200</span> Réactivation</div>
+              <pre><code>{ <span class="json-key">"message"</span>: <span class="json-str">"Annonce réactivée avec succès."</span> }</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
+         MODULE ANNOUNCEMENTS (PLATFORM — TOUS UTILISATEURS)
+    ════════════════════════════════════════════════════════ -->
+    <div class="section" id="announcements">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(251,146,60,0.1)">📣</div>
+        <h2>Annonces — Lecture (Plateforme)</h2>
+      </div>
+
+      <p class="desc">Route accessible à <strong>tous les utilisateurs authentifiés</strong> (pas besoin d'être admin). Permet au frontend d'afficher les annonces actives de la plateforme.</p>
+
+      <div class="endpoint open">
+        <div class="endpoint-header" onclick="toggle(this)">
+          <span class="method GET">GET</span>
+          <span class="endpoint-path">/api/announcements</span>
+          <span class="endpoint-summary">Lister les annonces actives</span>
+          <span class="auth-badge blue">🔒 Auth</span>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="endpoint-body">
+          <p class="desc">Retourne les annonces dont le statut est <code>active</code>. Inclut l'auteur. Aucun paramètre requis.</p>
+
+          <div class="response-title"><span class="status-code s200">200</span> Réponse</div>
+          <pre><code>{
+  <span class="json-key">"type"</span>: <span class="json-str">"success"</span>,
+  <span class="json-key">"message"</span>: <span class="json-str">"Liste des annonces récupérée avec succès."</span>,
+  <span class="json-key">"data"</span>: [
+    {
+      <span class="json-key">"id"</span>: <span class="json-num">1</span>,
+      <span class="json-key">"title"</span>: <span class="json-str">"Journée portes ouvertes ENSPM 2026"</span>,
+      <span class="json-key">"content"</span>: <span class="json-str">"Venez nombreux..."</span>,
+      <span class="json-key">"image"</span>: <span class="json-str">"announcements/portes-ouvertes_abc123.jpg"</span>,
+      <span class="json-key">"status"</span>: <span class="json-str">"active"</span>,
+      <span class="json-key">"start_date"</span>: <span class="json-str">"2026-06-01"</span>,
+      <span class="json-key">"end_date"</span>: <span class="json-str">"2026-06-15"</span>,
+      <span class="json-key">"user"</span>: { <span class="json-comment">/* admin auteur */</span> },
+      <span class="json-key">"created_at"</span>: <span class="json-str">"2026-05-10T09:00:00.000000Z"</span>
+    }
+  ]
+}</code></pre>
+          <div class="info-box" style="margin-top:10px">
+            <p class="desc" style="margin:0">💡 Pour afficher l'image : <code>BASE_URL/storage/{image}</code><br>Si <code>image</code> est <code>null</code>, aucune image n'a été attachée à l'annonce.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
+         MODULE NETWORKING
+    ════════════════════════════════════════════════════════ -->
+    <div class="section" id="networking">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(96,165,250,0.1)">🌐</div>
+        <h2>Networking — Membres</h2>
+      </div>
+
+      <p class="desc">Route accessible à <strong>tous les utilisateurs authentifiés</strong>. Permet de découvrir les autres membres actifs de la plateforme pour faciliter le réseautage entre alumni.</p>
+
+      <div class="endpoint open">
+        <div class="endpoint-header" onclick="toggle(this)">
+          <span class="method GET">GET</span>
+          <span class="endpoint-path">/api/networking/members</span>
+          <span class="endpoint-summary">Lister les membres actifs</span>
+          <span class="auth-badge blue">🔒 Auth</span>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="endpoint-body">
+          <p class="desc">Retourne les utilisateurs actifs (<code>status = true</code>) en excluant les administrateurs (<code>role != admin</code>). Paginé par <strong>20 membres</strong> (simple pagination).</p>
+
+          <div class="response-title"><span class="status-code s200">200</span> Réponse</div>
+          <pre><code>{
+  <span class="json-key">"type"</span>: <span class="json-str">"success"</span>,
+  <span class="json-key">"message"</span>: <span class="json-str">"Membres de la plateforme"</span>,
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"data"</span>: [
+      {
+        <span class="json-key">"id"</span>: <span class="json-num">2</span>,
+        <span class="json-key">"name"</span>: <span class="json-str">"Jean Dupont"</span>,
+        <span class="json-key">"email"</span>: <span class="json-str">"jean@enspm.cm"</span>,
+        <span class="json-key">"phone"</span>: <span class="json-str">"690000000"</span>,
+        <span class="json-key">"role"</span>: <span class="json-str">"user"</span>,
+        <span class="json-key">"domain"</span>: <span class="json-str">"Génie Civil"</span>,
+        <span class="json-key">"graduation_year"</span>: <span class="json-num">2022</span>,
+        <span class="json-key">"is_worker"</span>: <span class="json-bool">true</span>,
+        <span class="json-key">"profile_picture"</span>: <span class="json-str">"images/profile/jean-dupont.jpg"</span>,
+        <span class="json-key">"status"</span>: <span class="json-bool">true</span>
+      }
+    ],
+    <span class="json-key">"next_page_url"</span>: <span class="json-str">"http://your-domain.com/api/networking/members?page=2"</span>,
+    <span class="json-key">"prev_page_url"</span>: <span class="json-null">null</span>
+  }
+}</code></pre>
+
+          <div class="sub-divider"></div>
+          <h3>Règles d'exclusion</h3>
+          <table class="params-table">
+            <thead><tr><th>Condition</th><th>Comportement</th></tr></thead>
+            <tbody>
+              <tr><td><code>role = admin</code></td><td>Exclu — les admins n'apparaissent pas dans la liste networking</td></tr>
+              <tr><td><code>status = false</code></td><td>Exclu — comptes désactivés/suspendus non visibles</td></tr>
+              <tr><td><code>role = user</code> ET <code>status = true</code></td><td>Inclus dans les résultats</td></tr>
+            </tbody>
+          </table>
+
+          <div class="info-box" style="margin-top:12px">
+            <p class="desc" style="margin:0">💡 Pour l'image de profil, construire l'URL complète : <code>BASE_URL/storage/{profile_picture}</code><br>Si <code>profile_picture</code> est <code>null</code>, afficher un avatar par défaut côté frontend.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── NOTE DE BAS ── -->
+    <div class="info-box accent" style="text-align:center">
+      <p class="desc" style="margin:0;color:var(--muted)">
+        Documentation Admin — <strong style="color:var(--text)">Alumni ENSPM Backend API v2</strong> · Laravel 12 · Sanctum<br>
+        Toutes les routes <code>/api/admin/*</code> nécessitent <code>role = admin</code>.
+        Routes plateforme (<code>/announcements</code>, <code>/networking</code>) accessibles à tous les utilisateurs authentifiés.
+      </p>
+    </div>
+
+  </div><!-- /content -->
+</main>
+
+<script>
+function toggle(header) {
+  const ep = header.closest('.endpoint');
+  ep.classList.toggle('open');
+}
+</script>
+</body>
+</html>
