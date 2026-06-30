@@ -30,9 +30,15 @@ class AuthRepository @Inject constructor(
         sessionDataStore.clearSession()
     }
 
-    suspend fun forgotPassword(email: String) = safeApiCall(moshi) { authApi.forgotPassword(ForgotPasswordRequest(email)) }
-    suspend fun verifyOtp(email: String, otp: String) = safeApiCall(moshi) { authApi.verifyOtp(VerifyOtpRequest(email, otp)) }
-    suspend fun resendOtp(email: String) = safeApiCall(moshi) { authApi.resendOtp(ResendOtpRequest(email)) }
+    suspend fun forgotPassword(email: String) =
+        safeApiCall(moshi, defaultData = MessageDataDto()) { authApi.forgotPassword(ForgotPasswordRequest(email)) }
+
+    suspend fun verifyOtp(email: String, otp: String) =
+        safeApiCall(moshi, defaultData = MessageDataDto()) { authApi.verifyOtp(VerifyOtpRequest(email, otp)) }
+
+    suspend fun resendOtp(email: String) =
+        safeApiCall(moshi, defaultData = MessageDataDto()) { authApi.resendOtp(ResendOtpRequest(email)) }
+
     suspend fun resetPassword(email: String, otp: String, password: String, confirmation: String) =
-        safeApiCall(moshi) { authApi.resetPassword(ResetPasswordRequest(email, otp, password, confirmation)) }
+        safeApiCall(moshi, defaultData = MessageDataDto()) { authApi.resetPassword(ResetPasswordRequest(email, otp, password, confirmation)) }
 }

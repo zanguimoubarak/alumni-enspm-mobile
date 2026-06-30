@@ -7,13 +7,14 @@ import java.io.IOException
 
 suspend fun <T : Any> safeApiCall(
     moshi: Moshi,
+    defaultData: T? = null,
     call: suspend () -> Response<ApiEnvelope<T>>,
 ): ApiResult<T> {
     return try {
         val response = call()
         val envelope = response.body()
-        if (response.isSuccessful && envelope?.type == ApiResponseType.Success && envelope.data != null) {
-            ApiResult.Success(envelope.data, envelope.message)
+        if (response.isSuccessful && envelope?.type == ApiResponseType.Success && (envelope.data != null || defaultData != null)) {
+            ApiResult.Success(envelope.data ?: defaultData!!, envelope.message)
         } else {
             val parsed = envelope?.toApiError() ?: parseErrorBody(moshi, response)
             ApiResult.Failure(parsed.copy(status = parsed.status ?: response.code()))
