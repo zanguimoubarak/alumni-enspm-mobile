@@ -3,9 +3,24 @@ package com.enspm.alumni
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -16,6 +31,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.enspm.alumni.auth.ui.*
 import com.enspm.alumni.core.session.SessionManager
+import com.enspm.alumni.core.ui.ShellActionCard
 import com.enspm.alumni.core.session.SessionState
 import com.enspm.alumni.ui.theme.AlumniTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -77,11 +93,32 @@ private fun LoadingScreen() {
 private fun ShellScreen() {
     val viewModel: ShellViewModel = hiltViewModel()
     Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-        Column(Modifier.fillMaxSize().padding(24.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("Alumni ENSPM", style = MaterialTheme.typography.headlineMedium)
-            Text("Session active — shell principal Lite")
-            Spacer(Modifier.height(16.dp))
-            OutlinedButton(onClick = viewModel::logout) { Text("Se déconnecter") }
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(18.dp),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Alumni ENSPM", style = MaterialTheme.typography.titleLarge)
+                OutlinedButton(onClick = viewModel::logout) { Text("Déconnexion") }
+            }
+            Spacer(Modifier.height(8.dp))
+            Text("Bonjour 👋", style = MaterialTheme.typography.headlineSmall)
+            Text(
+                "Votre session est active. Les modules Alumni seront activés progressivement.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            ShellActionCard("Fil d’actualité", "Lire les publications Alumni — bientôt disponible")
+            ShellActionCard("Réseau alumni", "Retrouver les membres ENSPM — bientôt disponible")
+            ShellActionCard("Opportunités", "Stages, emplois et formations — bientôt disponible")
+            ShellActionCard("Notifications", "Suivre les alertes importantes — bientôt disponible")
         }
     }
 }
