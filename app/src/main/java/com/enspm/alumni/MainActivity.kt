@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.clickable
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -29,10 +30,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import com.enspm.alumni.auth.ui.*
 import com.enspm.alumni.core.session.SessionManager
 import com.enspm.alumni.core.ui.ShellActionCard
 import com.enspm.alumni.core.session.SessionState
+import com.enspm.alumni.feed.ui.FeedRoute
+import com.enspm.alumni.feed.ui.PostDetailRoute
 import com.enspm.alumni.ui.theme.AlumniTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -80,7 +85,11 @@ private fun AlumniApp(sessionManager: SessionManager) {
                 onBackToLogin = { navController.navigate("login") { popUpTo("login") { inclusive = true } } },
             )
         }
-        composable("shell") { ShellScreen() }
+        composable("shell") { ShellScreen(onOpenFeed = { navController.navigate("feed") }) }
+        composable("feed") { FeedRoute(onPostClick = { navController.navigate("posts/$it") }) }
+        composable("posts/{postId}", arguments = listOf(navArgument("postId") { type = NavType.LongType })) {
+            PostDetailRoute(onBack = { navController.popBackStack() })
+        }
     }
 }
 
@@ -90,7 +99,7 @@ private fun LoadingScreen() {
 }
 
 @Composable
-private fun ShellScreen() {
+private fun ShellScreen(onOpenFeed: () -> Unit) {
     val viewModel: ShellViewModel = hiltViewModel()
     Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(
@@ -115,7 +124,7 @@ private fun ShellScreen() {
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            ShellActionCard("Fil d’actualité", "Lire les publications Alumni — bientôt disponible")
+            ShellActionCard("Fil d’actualité", "Lire les publications Alumni", modifier = Modifier.clickable(onClick = onOpenFeed))
             ShellActionCard("Réseau alumni", "Retrouver les membres ENSPM — bientôt disponible")
             ShellActionCard("Opportunités", "Stages, emplois et formations — bientôt disponible")
             ShellActionCard("Notifications", "Suivre les alertes importantes — bientôt disponible")

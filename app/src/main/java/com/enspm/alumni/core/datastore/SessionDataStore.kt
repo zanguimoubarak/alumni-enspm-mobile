@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -24,6 +25,14 @@ class SessionDataStore @Inject constructor(
         preferences[TOKEN_KEY]?.takeIf { it.isNotBlank() }
     }
 
+    val dataSaverFlow: Flow<Boolean> = dataStore.data.map { preferences ->
+        preferences[DATA_SAVER_KEY] ?: false
+    }
+
+    suspend fun setDataSaver(enabled: Boolean) {
+        dataStore.edit { it[DATA_SAVER_KEY] = enabled }
+    }
+
     suspend fun saveToken(token: String) {
         dataStore.edit { it[TOKEN_KEY] = token }
     }
@@ -34,5 +43,6 @@ class SessionDataStore @Inject constructor(
 
     private companion object {
         val TOKEN_KEY = stringPreferencesKey("sanctum_token")
+        val DATA_SAVER_KEY = booleanPreferencesKey("data_saver_enabled")
     }
 }
